@@ -1,0 +1,16 @@
+{
+  "Linha do tempo": {
+    "repoPath": "C:\\Users\\devlu\\Focus Studios\\Projetos\\Fort\\linha-do-tempo",
+    "repoUrl": "https://github.com/OdysseyBR/linha-do-tempo",
+    "branch": "main",
+    "doPull": true,
+    "initIfNeeded": true
+  },
+  "Autopush": {
+    "repoPath": "C:\\Users\\devlu\\ferramentas\\autopush",
+    "repoUrl": "https://github.com/OdysseyBR/autopush",
+    "branch": "main",
+    "doPull": true,
+    "initIfNeeded": true
+  }
+}

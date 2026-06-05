@@ -1,0 +1,11 @@
+{
+  "name": "autopush",
+  "version": "2.0.0",
+  "description": "Push automático para o GitHub com interface gráfica",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Luca",
+  "license": "MIT"
+}
