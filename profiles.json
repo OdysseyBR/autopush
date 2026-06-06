@@ -9,7 +9,7 @@
   "Autopush": {
     "repoPath": "C:\\Users\\devlu\\ferramentas\\autopush",
     "repoUrl": "https://github.com/OdysseyBR/autopush",
-    "branch": "main",
+    "branch": "master",
     "doPull": true,
     "initIfNeeded": true
   }
