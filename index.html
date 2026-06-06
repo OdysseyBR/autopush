@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>git autopush</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  :root {
+    --bg: #0d0d0f; --surface: #141416; --surface2: #1c1c1f;
+    --border: #2a2a2e; --border2: #3a3a3f;
+    --text: #e8e8ea; --muted: #6b6b72;
+    --accent: #4ade80; --accent-dim: #166534;
+    --red: #f87171; --yellow: #fbbf24; --blue: #60a5fa;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  .container { width: 100%; max-width: 620px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
+  .logo { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  header h1 { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; letter-spacing: -0.02em; }
+  header span { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
+  .card-title { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; }
+  .field { margin-bottom: 0.875rem; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-family: 'JetBrains Mono', monospace; }
+  input[type="text"] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 9px 12px; font-size: 13px; color: var(--text); font-family: 'JetBrains Mono', monospace; outline: none; transition: border-color 0.15s; }
+  input[type="text"]:focus { border-color: var(--border2); }
+  input[type="text"]::placeholder { color: var(--muted); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .toggles { display: flex; flex-direction: column; gap: 10px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--surface2); border-radius: 7px; border: 1px solid var(--border); }
+  .toggle-info { display: flex; flex-direction: column; gap: 2px; }
+  .toggle-label { font-size: 13px; color: var(--text); }
+  .toggle-desc { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-track { position: absolute; inset: 0; background: var(--border2); border-radius: 22px; cursor: pointer; transition: background 0.2s; }
+  .switch-track::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+  .switch input:checked + .switch-track { background: var(--accent-dim); border: 1px solid var(--accent); }
+  .switch input:checked + .switch-track::before { transform: translateX(16px); background: var(--accent); }
+  .profile-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .profile-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .profile-btn:hover { border-color: var(--border2); color: var(--text); }
+  .profile-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(74,222,128,0.05); }
+  .btn-push { width: 100%; background: var(--accent); color: #052e16; border: none; border-radius: var(--radius); padding: 13px; font-size: 14px; font-weight: 600; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: opacity 0.15s, transform 0.1s; margin-top: 0.5rem; }
+  .btn-push:hover { opacity: 0.9; }
+  .btn-push:active { transform: scale(0.99); }
+  .btn-push:disabled { opacity: 0.4; cursor: not-allowed; }
+  .log-area { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-top: 1rem; display: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8; }
+  .log-area.visible { display: block; }
+  .log-line { display: flex; gap: 10px; align-items: flex-start; }
+  .log-icon { flex-shrink: 0; width: 16px; margin-top: 2px; }
+  .log-ok .log-icon::before { content: '✔'; color: var(--accent); }
+  .log-error .log-icon::before { content: '✘'; color: var(--red); }
+  .log-warn .log-icon::before { content: '⚠'; color: var(--yellow); }
+  .log-info .log-icon::before { content: '→'; color: var(--blue); }
+  .log-hint .log-icon::before { content: '💡'; }
+  .log-diff .log-icon::before { content: '~'; color: var(--muted); }
+  .log-success .log-icon::before { content: '🚀'; }
+  .log-ok .log-msg { color: var(--text); }
+  .log-error .log-msg { color: var(--red); }
+  .log-warn .log-msg { color: var(--yellow); }
+  .log-info .log-msg { color: var(--blue); }
+  .log-hint .log-msg { color: var(--muted); }
+  .log-diff .log-msg { color: var(--muted); white-space: pre; }
+  .log-success .log-msg { color: var(--accent); font-weight: 600; }
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(5,46,22,0.3); border-top-color: #052e16; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .save-row { display: flex; align-items: center; gap: 8px; margin-top: 0.75rem; }
+  .save-row input { flex: 1; }
+  .save-row button { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 9px 14px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .save-row button:hover { color: var(--text); border-color: var(--border2); }
+  .no-profiles { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">&#11014;</div>
+    <div><h1>git autopush</h1><span>push automatico para o GitHub</span></div>
+  </header>
+
+  <div class="card">
+    <div class="card-title">Perfis salvos</div>
+    <div class="profile-list" id="profileList">
+      <span class="no-profiles">Nenhum perfil ainda.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Repositorio</div>
+    <div class="field">
+      <label>CAMINHO DA PASTA</label>
+      <input type="text" id="repoPath" placeholder="C:\Users\devlu\Focus Studios\Projetos\meu-app" />
+    </div>
+    <div class="field">
+      <label>URL DO REPOSITORIO</label>
+      <input type="text" id="repoUrl" placeholder="https://github.com/usuario/repositorio.git" />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>BRANCH</label>
+        <input type="text" id="branch" value="main" />
+      </div>
+      <div class="field">
+        <label>MENSAGEM DO COMMIT</label>
+        <input type="text" id="commitMsg" placeholder="feat: nova funcionalidade" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Opcoes</div>
+    <div class="toggles">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Pull antes do push</span>
+          <span class="toggle-desc">git pull --rebase antes de enviar</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="doPull" checked />
+          <span class="switch-track"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Inicializar repo se nao existir</span>
+          <span class="toggle-desc">git init + adiciona remote</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="initRepo" />
+          <span class="switch-track"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-row">
+    <input type="text" id="profileName" placeholder="Nome do perfil (opcional)" />
+    <button onclick="saveProfile()">Salvar perfil</button>
+  </div>
+
+  <button class="btn-push" id="pushBtn" onclick="doPush()">&#11014; Fazer push</button>
+
+  <div class="log-area" id="logArea"></div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
